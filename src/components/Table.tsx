@@ -1,8 +1,9 @@
 import { useContext } from 'react';
+// eslint-disable-next-line import/no-unresolved
 import { StarWarsContext } from '../context/StarWarsContext';
 
 export function Table() {
-  const { planetsFiltered } = useContext(StarWarsContext);
+  const { planetsFiltered } = useContext<any>(StarWarsContext);
 
   return (
     <table>
@@ -24,8 +25,8 @@ export function Table() {
         </tr>
       </thead>
       <tbody>
-        {planetsFiltered.map((planet, index) => (
-          <tr key={ index }>
+        {planetsFiltered.map((planet:any) => (
+          <tr key={planet.name}>
             <td data-testid="planet-name">{planet.name}</td>
             <td>{planet.rotation_period}</td>
             <td>{planet.orbital_period}</td>

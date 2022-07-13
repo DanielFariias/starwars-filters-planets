@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect } from 'react';
 
 export const StarWarsContext = createContext({});
 
@@ -102,7 +102,7 @@ export function StarWarsProvider({ children }) {
   }
   return (
     <StarWarsContext.Provider
-      value={ {
+      value={{
         planetsFiltered,
         filterTable,
         filterByNumericValues,
@@ -117,7 +117,7 @@ export function StarWarsProvider({ children }) {
         order,
         setOrder,
         sortFilter,
-      } }
+      }}
     >
       {children}
     </StarWarsContext.Provider>
