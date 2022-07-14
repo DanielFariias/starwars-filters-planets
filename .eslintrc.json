@@ -23,9 +23,8 @@
         "import/prefer-default-export": "off",
         "react/jsx-filename-extension": "off",
         "react/react-in-jsx-scope": "off",
-        "import/extensions": "off"
-
-        
-        
+        "import/extensions": "off",
+        "no-param-reassign": "off",
+        "import/no-unresolved": "off"
     }
 }

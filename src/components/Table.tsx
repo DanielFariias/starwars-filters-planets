@@ -3,7 +3,20 @@ import { useContext } from 'react';
 import { StarWarsContext } from '../context/StarWarsContext';
 
 export function Table() {
-  const { planetsFiltered } = useContext<any>(StarWarsContext);
+  const {
+    data, name,
+    filterByNumericValues, filterPlanetsByName, filterPlanetsByNumericValues, sortFilter,
+  } = useContext<any>(StarWarsContext);
+
+  function filterTable(planets, planetName, filterByNumericValues) {
+    const filteredPlanetsByName = filterPlanetsByName(planets, planetName);
+
+    const filteredPlanetsByNumericValues = filterPlanetsByNumericValues(filteredPlanetsByName, filterByNumericValues);
+
+    return (sortFilter(filteredPlanetsByNumericValues));
+  }
+
+  const filteredPlanets = filterTable(data, name, filterByNumericValues);
 
   return (
     <table>
@@ -25,7 +38,7 @@ export function Table() {
         </tr>
       </thead>
       <tbody>
-        {planetsFiltered.map((planet:any) => (
+        {filteredPlanets.map((planet:any) => (
           <tr key={planet.name}>
             <td data-testid="planet-name">{planet.name}</td>
             <td>{planet.rotation_period}</td>

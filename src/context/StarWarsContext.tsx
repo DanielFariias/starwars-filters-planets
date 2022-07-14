@@ -1,4 +1,8 @@
-import { createContext, useState, useEffect } from 'react';
+import {
+  createContext, useState, useEffect, ReactNode,
+} from 'react';
+
+import { fetchPlanets, IPlanet } from '../services/api';
 
 export const StarWarsContext = createContext({});
 
@@ -10,13 +14,26 @@ const INITIAL_FILTER = [
   'surface_water',
 ];
 
-export function StarWarsProvider({ children }) {
-  const [data, setData] = useState([]);
-  const [planetsFiltered, setPlanetsFiltered] = useState([]);
+interface IPlanetsContext {
+  children: ReactNode
+}
+
+export function StarWarsProvider({ children }:IPlanetsContext) {
+  const [data, setData] = useState<IPlanet[]>([]);
+  const [planetsFiltered, setPlanetsFiltered] = useState<IPlanet[]>([]);
   const [filterByNumericValues, setFilterByNumericValues] = useState([]);
   const [name, setName] = useState('');
   const [order, setOrder] = useState({ column: 'name', sort: 'DESC' });
   const [columnFilter, setColumnFilter] = useState(INITIAL_FILTER);
+
+  useEffect(() => {
+    async function getPlanets() {
+      const planets = await fetchPlanets();
+      setData(planets);
+      setPlanetsFiltered(planets);
+    }
+    getPlanets();
+  }, []);
 
   function sortFilter(planets) {
     const positionBefore = -1;
@@ -39,56 +56,38 @@ export function StarWarsProvider({ children }) {
       )));
   }
 
-  useEffect(() => {
-    async function fetchPlanets() {
-      await fetch('https://swapi-trybe.herokuapp.com/api/planets/')
-        .then((res) => res.json())
-        .then(({ results }) => {
-          results.forEach((planet) => delete planet.residents);
-
-          setData((results));
-          setPlanetsFiltered(sortFilter(results));
-        });
-    }
-    fetchPlanets();
-  }, []);
-
   function removeColumnFilter(filter) {
     setColumnFilter((prevOptions) => (
       prevOptions.filter((option) => option !== filter.column)
     ));
   }
 
-  function filterTable() {
-    let filteredPlanetsByName = data
-      .filter((planet) => planet.name.toUpperCase().includes(name.toUpperCase()));
-    setPlanetsFiltered(filteredPlanetsByName);
+  function filterPlanetsByName(planets:IPlanet[], planetName: string): IPlanet[] {
+    const newFilteredPlanetsByName = planets
+      .filter((planet) => (
+        planet.name.toUpperCase().includes(planetName.toUpperCase())
+      ));
 
-    filterByNumericValues.forEach((numericValue) => {
-      if (numericValue.comparison === 'maior que') {
-        filteredPlanetsByName = filteredPlanetsByName
-          .filter((planet) => (
-            Number(planet[numericValue.column]) > Number(numericValue.value)
-          ));
-      } else if (numericValue.comparison === 'menor que') {
-        filteredPlanetsByName = filteredPlanetsByName
-          .filter((planet) => (
-            Number(planet[numericValue.column]) < Number(numericValue.value)
-          ));
-      } else {
-        filteredPlanetsByName = filteredPlanetsByName
-          .filter((planet) => (
-            Number(planet[numericValue.column]) === Number(numericValue.value)
-          ));
-      }
-    });
-
-    setPlanetsFiltered(sortFilter(filteredPlanetsByName));
+    return newFilteredPlanetsByName;
   }
 
-  useEffect(() => {
-    filterTable();
-  }, [filterByNumericValues, name, order]);
+  const NumericFilteredTypes:any = {
+    'maior que': (a:number, b:number) => a > b,
+    'menor que': (a:number, b:number) => a < b,
+    'igual a': (a:number, b:number) => a === b,
+  };
+
+  function filterPlanetsByNumericValues(planets: IPlanet[], filters: any): IPlanet[] {
+    let newFilteredPlanetsByNumericValues: IPlanet[] = planets;
+
+    filters.forEach(({ comparison, column, value }) => {
+      newFilteredPlanetsByNumericValues = planets.filter((planet) => (
+        NumericFilteredTypes[comparison](Number(planet[column]), Number(value))
+      ));
+    });
+
+    return newFilteredPlanetsByNumericValues;
+  }
 
   function removeFilter(column) {
     setColumnFilter((state) => [...state, column.column]);
@@ -103,8 +102,8 @@ export function StarWarsProvider({ children }) {
   return (
     <StarWarsContext.Provider
       value={{
+        data,
         planetsFiltered,
-        filterTable,
         filterByNumericValues,
         setPlanetsFiltered,
         setFilterByNumericValues,
@@ -117,6 +116,8 @@ export function StarWarsProvider({ children }) {
         order,
         setOrder,
         sortFilter,
+        filterPlanetsByNumericValues,
+        filterPlanetsByName,
       }}
     >
       {children}
