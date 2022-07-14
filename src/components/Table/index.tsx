@@ -10,7 +10,7 @@ const NumericFilteredTypes = {
   'igual a': (a:number, b:number) => a === b,
 };
 
-const obgP = {
+const sortTypes = {
   ASC: (column: string) => (Number(column === 'unknown' ? Number.POSITIVE_INFINITY : column)),
   DESC: (column: string) => (Number(column === 'unknown' ? Number.NEGATIVE_INFINITY : column)),
 };
@@ -32,8 +32,8 @@ export function Table() {
     }
 
     return planets.sort((a, b) => (order.sort === 'ASC'
-      ? obgP[order.sort](a[order.column]) - obgP[order.sort](b[order.column])
-      : obgP[order.sort](b[order.column]) - obgP[order.sort](a[order.column])));
+      ? sortTypes[order.sort](a[order.column]) - sortTypes[order.sort](b[order.column])
+      : sortTypes[order.sort](b[order.column]) - sortTypes[order.sort](a[order.column])));
   }
 
   function filterPlanetsByName(planets:IPlanet[], planetName: string): IPlanet[] {

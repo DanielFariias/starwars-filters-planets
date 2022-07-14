@@ -18,8 +18,9 @@ export interface IPlanet {
   url: string
 }
 
-type IColumn = 'name' | 'population' | 'orbital_period' | 'diameter' | 'rotation_period' | 'surface_water'
-type IComparison = 'maior que' | 'menor que' | 'igual a'
+export type IColumn = 'name' | 'population' | 'orbital_period' | 'diameter' | 'rotation_period' | 'surface_water'
+export type IComparison = 'maior que' | 'menor que' | 'igual a'
+export type SortType = 'ASC'| 'DESC'
 
 export interface FilterByNumericValues {
   column: IColumn
@@ -29,7 +30,7 @@ export interface FilterByNumericValues {
 
 export interface Order {
   column: IColumn
-  sort: 'ASC'| 'DESC'
+  sort: SortType
 }
 
 export interface IPlanetsContext {
@@ -43,7 +44,7 @@ export interface IPlanetsContext {
   onRemoveFilterBtnClick: () => void
   handleChangeName: (newName: string) => void
   addNewfilterByNumericValues: (newFilter: FilterByNumericValues) => void
-  handleChangeSortOrder: (colunmSorted:string, sortMethod: string) => void
+  handleChangeSortOrder: (colunmSorted: IColumn, sortMethod: 'ASC'| 'DESC') => void
 }
 
 export interface IPlanetsContextProps {

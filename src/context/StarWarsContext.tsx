@@ -2,6 +2,7 @@ import {
   createContext,
   useState,
   useEffect,
+  useMemo,
 } from 'react';
 
 import {
@@ -10,6 +11,7 @@ import {
   IPlanetsContextProps,
   FilterByNumericValues,
   Order,
+  IColumn,
 } from './PlanetsTypes';
 
 import { fetchPlanets } from '../services/api';
@@ -20,7 +22,7 @@ const INITIAL_FILTER = [
   'diameter',
   'rotation_period',
   'surface_water',
-] as const;
+];
 
 export const StarWarsContext = createContext({} as IPlanetsContext);
 
@@ -47,14 +49,14 @@ export function StarWarsProvider({ children }: IPlanetsContextProps) {
     setName(newName);
   }
 
-  function handleChangeSortOrder(colunmSorted:string, sortMethod: string) {
+  function handleChangeSortOrder(colunmSorted: IColumn, sortMethod: 'ASC'| 'DESC') {
     setOrder({ column: colunmSorted, sort: sortMethod });
   }
 
   function removeColumnFilter(filter: FilterByNumericValues) {
-    setColumnFilter((prevOptions) => (
-      prevOptions.filter((option) => option !== filter.column)
-    ));
+    const filters = columnFilter.filter((option) => option !== filter.column);
+
+    setColumnFilter(filters);
   }
 
   function removeFilter(filter: FilterByNumericValues) {
@@ -68,7 +70,7 @@ export function StarWarsProvider({ children }: IPlanetsContextProps) {
     setFilterByNumericValues([]);
   }
 
-  const valueProvider = {
+  const valueProvider = useMemo(() => ({
     data,
     filterByNumericValues,
     addNewfilterByNumericValues,
@@ -81,7 +83,18 @@ export function StarWarsProvider({ children }: IPlanetsContextProps) {
     order,
     setOrder,
     handleChangeSortOrder,
-  };
+  }), [data,
+    filterByNumericValues,
+    addNewfilterByNumericValues,
+    name,
+    handleChangeName,
+    columnFilter,
+    removeColumnFilter,
+    removeFilter,
+    onRemoveFilterBtnClick,
+    order,
+    setOrder,
+    handleChangeSortOrder]);
 
   return (
     <StarWarsContext.Provider

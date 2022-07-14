@@ -1,4 +1,4 @@
-import { IPlanet } from '../../../services/api';
+import { IPlanet } from '../../../context/PlanetsTypes';
 
 interface ITbodyProps {
   filteredPlanets: IPlanet[]
