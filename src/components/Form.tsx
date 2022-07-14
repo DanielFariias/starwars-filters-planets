@@ -12,15 +12,14 @@ const INITIAL_FILTER = [
 export function Form() {
   const {
     filterByNumericValues,
-    planetsFiltered,
-    setFilterByNumericValues,
+    addNewfilterByNumericValues,
     name,
-    setName,
+    handleChangeName,
     columnFilter,
     removeColumnFilter,
     removeFilter,
     onRemoveFilterBtnClick,
-    setOrder,
+    handleChangeSortOrder,
   } = useContext(StarWarsContext);
 
   const [column, setColumn] = useState(columnFilter[0]);
@@ -32,9 +31,8 @@ export function Form() {
 
   function handleFilter() {
     removeColumnFilter({ column, comparison, value });
-    setFilterByNumericValues((state) => ([...state, {
-      column, comparison, value,
-    }]));
+    addNewfilterByNumericValues({ column, comparison, value });
+
     setColumn(columnFilter[1]);
   }
 
@@ -48,7 +46,7 @@ export function Form() {
           id="name-filter"
           value={name}
           placeholder="Digite um planeta"
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => handleChangeName(e.target.value)}
         />
       </label>
 
@@ -123,7 +121,7 @@ export function Form() {
               type="radio"
               value={item}
               checked={item === ascDesc}
-              data-testid={`column-sort-input-${item.toLowerCase(planetsFiltered)}`}
+              data-testid={`column-sort-input-${item.toLowerCase()}`}
             />
           </label>
         ))
@@ -132,7 +130,7 @@ export function Form() {
         type="button"
         data-testid="column-sort-button"
         onClick={() => {
-          setOrder({ column: sorted, sort: ascDesc });
+          handleChangeSortOrder(sorted, ascDesc);
         }}
       >
         Sort

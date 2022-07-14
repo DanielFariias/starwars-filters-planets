@@ -1,22 +1,29 @@
 import { useContext } from 'react';
+import { FilterByNumericValues, IPlanet } from '../../context/PlanetsTypes';
 import { StarWarsContext } from '../../context/StarWarsContext';
+import { Tbody } from './components/Tbody';
+import { Thead } from './components/Thead';
+
+const NumericFilteredTypes = {
+  'maior que': (a:number, b:number) => a > b,
+  'menor que': (a:number, b:number) => a < b,
+  'igual a': (a:number, b:number) => a === b,
+};
+
+const obgP = {
+  ASC: (column: string) => (Number(column === 'unknown' ? Number.POSITIVE_INFINITY : column)),
+  DESC: (column: string) => (Number(column === 'unknown' ? Number.NEGATIVE_INFINITY : column)),
+};
 
 export function Table() {
   const {
     data,
     name,
     filterByNumericValues,
-    filterPlanetsByName,
-    filterPlanetsByNumericValues,
     order,
-  } = useContext<any>(StarWarsContext);
+  } = useContext(StarWarsContext);
 
-  const obgP: any = {
-    ASC: (planet) => (Number(planet === 'unknown' ? Number.POSITIVE_INFINITY : planet)),
-    DESC: (planet) => (Number(planet === 'unknown' ? Number.NEGATIVE_INFINITY : planet)),
-  };
-
-  function sortFilter(planets) {
+  function sortFilter(planets: IPlanet[]) {
     const positionBefore = -1;
 
     if (order.column === 'name') {
@@ -29,10 +36,40 @@ export function Table() {
       : obgP[order.sort](b[order.column]) - obgP[order.sort](a[order.column])));
   }
 
-  function filterTable(planets, planetName, filterByNumericValues) {
+  function filterPlanetsByName(planets:IPlanet[], planetName: string): IPlanet[] {
+    const newFilteredPlanetsByName = planets
+      .filter((planet) => (
+        planet.name.toUpperCase().includes(planetName.toUpperCase())
+      ));
+
+    return newFilteredPlanetsByName;
+  }
+
+  function filterPlanetsByNumericValues(
+    planets: IPlanet[],
+    filters: FilterByNumericValues[],
+  ): IPlanet[] {
+    let newFilteredPlanetsByNumericValues: IPlanet[] = planets;
+
+    filters.forEach(({ comparison, column, value }: FilterByNumericValues) => {
+      newFilteredPlanetsByNumericValues = newFilteredPlanetsByNumericValues.filter((planet) => (
+        NumericFilteredTypes[comparison](Number(planet[column]), Number(value))
+      ));
+    });
+
+    return newFilteredPlanetsByNumericValues;
+  }
+
+  function filterTable(
+    planets: IPlanet[],
+    planetName: string,
+    filters: FilterByNumericValues[],
+  ) {
     const filteredPlanetsByName = filterPlanetsByName(planets, planetName);
 
-    const filteredPlanetsByNumericValues = filterPlanetsByNumericValues(filteredPlanetsByName, filterByNumericValues);
+    const filteredPlanetsByNumericValues = (
+      filterPlanetsByNumericValues(filteredPlanetsByName, filters)
+    );
 
     return (sortFilter(filteredPlanetsByNumericValues));
   }
@@ -41,43 +78,8 @@ export function Table() {
 
   return (
     <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Rotation Period</th>
-          <th>Orbital Period</th>
-          <th>Diameter</th>
-          <th>Climate</th>
-          <th>Gravity</th>
-          <th>Terrain</th>
-          <th>Surface Water</th>
-          <th>Population</th>
-          <th>Films</th>
-          <th>Created</th>
-          <th>Edited</th>
-          <th>URL</th>
-        </tr>
-      </thead>
-      <tbody>
-        {filteredPlanets.map((planet:any) => (
-          <tr key={planet.name}>
-            <td data-testid="planet-name">{planet.name}</td>
-            <td>{planet.rotation_period}</td>
-            <td>{planet.orbital_period}</td>
-            <td>{planet.diameter}</td>
-            <td>{planet.climate}</td>
-            <td>{planet.gravity}</td>
-            <td>{planet.terrain}</td>
-            <td>{planet.surface_water}</td>
-            <td>{planet.population}</td>
-            <td>{planet.films}</td>
-            <td>{planet.created}</td>
-            <td>{planet.edited}</td>
-            <td>{planet.url}</td>
-          </tr>
-        ))}
-      </tbody>
+      <Thead />
+      <Tbody filteredPlanets={filteredPlanets} />
     </table>
-
   );
 }

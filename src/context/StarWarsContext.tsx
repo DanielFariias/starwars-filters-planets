@@ -1,10 +1,18 @@
 import {
-  createContext, useState, useEffect, ReactNode,
+  createContext,
+  useState,
+  useEffect,
 } from 'react';
 
-import { fetchPlanets, IPlanet } from '../services/api';
+import {
+  IPlanet,
+  IPlanetsContext,
+  IPlanetsContextProps,
+  FilterByNumericValues,
+  Order,
+} from './PlanetsTypes';
 
-export const StarWarsContext = createContext({});
+import { fetchPlanets } from '../services/api';
 
 const INITIAL_FILTER = [
   'population',
@@ -12,91 +20,72 @@ const INITIAL_FILTER = [
   'diameter',
   'rotation_period',
   'surface_water',
-];
+] as const;
 
-interface IPlanetsContext {
-  children: ReactNode
-}
+export const StarWarsContext = createContext({} as IPlanetsContext);
 
-export function StarWarsProvider({ children }:IPlanetsContext) {
-  const [data, setData] = useState<IPlanet[]>([]);
-  const [planetsFiltered, setPlanetsFiltered] = useState<IPlanet[]>([]);
-  const [filterByNumericValues, setFilterByNumericValues] = useState([]);
+export function StarWarsProvider({ children }: IPlanetsContextProps) {
   const [name, setName] = useState('');
-  const [order, setOrder] = useState({ column: 'name', sort: 'DESC' });
+  const [data, setData] = useState<IPlanet[]>([]);
   const [columnFilter, setColumnFilter] = useState(INITIAL_FILTER);
+  const [order, setOrder] = useState<Order>({ column: 'name', sort: 'DESC' });
+  const [filterByNumericValues, setFilterByNumericValues] = useState<FilterByNumericValues[]>([]);
 
   useEffect(() => {
     async function getPlanets() {
       const planets = await fetchPlanets();
       setData(planets);
-      setPlanetsFiltered(planets);
     }
     getPlanets();
   }, []);
 
-  function removeColumnFilter(filter) {
+  function addNewfilterByNumericValues(newFilter: FilterByNumericValues) {
+    setFilterByNumericValues((state) => ([...state, newFilter]));
+  }
+
+  function handleChangeName(newName: string) {
+    setName(newName);
+  }
+
+  function handleChangeSortOrder(colunmSorted:string, sortMethod: string) {
+    setOrder({ column: colunmSorted, sort: sortMethod });
+  }
+
+  function removeColumnFilter(filter: FilterByNumericValues) {
     setColumnFilter((prevOptions) => (
       prevOptions.filter((option) => option !== filter.column)
     ));
   }
 
-  function filterPlanetsByName(planets:IPlanet[], planetName: string): IPlanet[] {
-    const newFilteredPlanetsByName = planets
-      .filter((planet) => (
-        planet.name.toUpperCase().includes(planetName.toUpperCase())
-      ));
-
-    return newFilteredPlanetsByName;
-  }
-
-  const NumericFilteredTypes:any = {
-    'maior que': (a:number, b:number) => a > b,
-    'menor que': (a:number, b:number) => a < b,
-    'igual a': (a:number, b:number) => a === b,
-  };
-
-  function filterPlanetsByNumericValues(planets: IPlanet[], filters: any): IPlanet[] {
-    let newFilteredPlanetsByNumericValues: IPlanet[] = planets;
-
-    filters.forEach(({ comparison, column, value }) => {
-      newFilteredPlanetsByNumericValues = planets.filter((planet) => (
-        NumericFilteredTypes[comparison](Number(planet[column]), Number(value))
-      ));
-    });
-
-    return newFilteredPlanetsByNumericValues;
-  }
-
-  function removeFilter(column) {
-    setColumnFilter((state) => [...state, column.column]);
+  function removeFilter(filter: FilterByNumericValues) {
+    setColumnFilter((state) => [...state, filter.column]);
     setFilterByNumericValues((state) => state
-      .filter((col) => col.column !== column.column));
+      .filter((col) => col.column !== filter.column));
   }
 
   function onRemoveFilterBtnClick() {
     setColumnFilter(INITIAL_FILTER);
     setFilterByNumericValues([]);
   }
+
+  const valueProvider = {
+    data,
+    filterByNumericValues,
+    addNewfilterByNumericValues,
+    name,
+    handleChangeName,
+    columnFilter,
+    removeColumnFilter,
+    removeFilter,
+    onRemoveFilterBtnClick,
+    order,
+    setOrder,
+    handleChangeSortOrder,
+  };
+
   return (
     <StarWarsContext.Provider
-      value={{
-        data,
-        planetsFiltered,
-        filterByNumericValues,
-        setPlanetsFiltered,
-        setFilterByNumericValues,
-        name,
-        setName,
-        columnFilter,
-        removeColumnFilter,
-        removeFilter,
-        onRemoveFilterBtnClick,
-        order,
-        setOrder,
-        filterPlanetsByNumericValues,
-        filterPlanetsByName,
-      }}
+      value={valueProvider}
     >
       {children}
     </StarWarsContext.Provider>
