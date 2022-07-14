@@ -35,27 +35,6 @@ export function StarWarsProvider({ children }:IPlanetsContext) {
     getPlanets();
   }, []);
 
-  function sortFilter(planets) {
-    const positionBefore = -1;
-
-    if (order.column === 'name') {
-      return planets
-        .sort((a, b) => (a[order.column] < b[order.column] ? positionBefore : 1));
-    }
-
-    return planets.sort((a, b) => (order.sort === 'ASC'
-      ? (Number(a[order.column] === 'unknown'
-        ? Number.POSITIVE_INFINITY : a[order.column])
-      - Number(b[order.column] === 'unknown'
-        ? Number.POSITIVE_INFINITY : b[order.column])
-      ) : (
-        Number(b[order.column] === 'unknown'
-          ? Number.NEGATIVE_INFINITY : b[order.column])
-      - Number(a[order.column] === 'unknown'
-        ? Number.NEGATIVE_INFINITY : a[order.column])
-      )));
-  }
-
   function removeColumnFilter(filter) {
     setColumnFilter((prevOptions) => (
       prevOptions.filter((option) => option !== filter.column)
@@ -115,7 +94,6 @@ export function StarWarsProvider({ children }:IPlanetsContext) {
         onRemoveFilterBtnClick,
         order,
         setOrder,
-        sortFilter,
         filterPlanetsByNumericValues,
         filterPlanetsByName,
       }}

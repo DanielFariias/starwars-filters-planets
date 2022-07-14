@@ -1,12 +1,33 @@
 import { useContext } from 'react';
-// eslint-disable-next-line import/no-unresolved
-import { StarWarsContext } from '../context/StarWarsContext';
+import { StarWarsContext } from '../../context/StarWarsContext';
 
 export function Table() {
   const {
-    data, name,
-    filterByNumericValues, filterPlanetsByName, filterPlanetsByNumericValues, sortFilter,
+    data,
+    name,
+    filterByNumericValues,
+    filterPlanetsByName,
+    filterPlanetsByNumericValues,
+    order,
   } = useContext<any>(StarWarsContext);
+
+  const obgP: any = {
+    ASC: (planet) => (Number(planet === 'unknown' ? Number.POSITIVE_INFINITY : planet)),
+    DESC: (planet) => (Number(planet === 'unknown' ? Number.NEGATIVE_INFINITY : planet)),
+  };
+
+  function sortFilter(planets) {
+    const positionBefore = -1;
+
+    if (order.column === 'name') {
+      return planets
+        .sort((a, b) => (a[order.column] < b[order.column] ? positionBefore : 1));
+    }
+
+    return planets.sort((a, b) => (order.sort === 'ASC'
+      ? obgP[order.sort](a[order.column]) - obgP[order.sort](b[order.column])
+      : obgP[order.sort](b[order.column]) - obgP[order.sort](a[order.column])));
+  }
 
   function filterTable(planets, planetName, filterByNumericValues) {
     const filteredPlanetsByName = filterPlanetsByName(planets, planetName);
