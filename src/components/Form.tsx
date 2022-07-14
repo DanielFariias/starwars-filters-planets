@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { StarWarsContext } from '../context/StarWarsContext';
 
 const INITIAL_FILTER = [
@@ -46,22 +46,22 @@ export function Form() {
           data-testid="name-filter"
           type="text"
           id="name-filter"
-          value={ name }
+          value={name}
           placeholder="Digite um planeta"
-          onChange={ (e) => setName(e.target.value) }
+          onChange={(e) => setName(e.target.value)}
         />
       </label>
 
       <select
         data-testid="column-filter"
-        onChange={ (e) => setColumn(e.target.value) }
-        value={ column }
+        onChange={(e) => setColumn(e.target.value)}
+        value={column}
 
       >
         {columnFilter.map((columnA) => (
           <option
-            key={ columnA }
-            value={ columnA }
+            key={columnA}
+            value={columnA}
           >
             {columnA}
           </option>
@@ -70,8 +70,8 @@ export function Form() {
 
       <select
         data-testid="comparison-filter"
-        onChange={ (e) => setComparison(e.target.value) }
-        value={ comparison }
+        onChange={(e) => setComparison(e.target.value)}
+        value={comparison}
       >
         <option value="maior que">maior que</option>
         <option value="menor que">menor que</option>
@@ -83,14 +83,14 @@ export function Form() {
           data-testid="value-filter"
           type="number"
           id="value-filter"
-          value={ value }
-          onChange={ (e) => setValue(e.target.value) }
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
         />
       </label>
 
       <button
         type="button"
-        onClick={ handleFilter }
+        onClick={handleFilter}
         data-testid="button-filter"
       >
         filtrar
@@ -98,14 +98,14 @@ export function Form() {
 
       <select
         data-testid="column-sort"
-        onChange={ (e) => setSorted(e.target.value) }
-        value={ sorted }
+        onChange={(e) => setSorted(e.target.value)}
+        value={sorted}
 
       >
         {INITIAL_FILTER.map((col) => (
           <option
-            key={ col }
-            value={ col }
+            key={col}
+            value={col}
           >
             {col}
           </option>
@@ -114,16 +114,16 @@ export function Form() {
 
       {
         ['ASC', 'DESC'].map((item) => (
-          <label htmlFor={ `order-${item}` } key={ `order-${item}` }>
+          <label htmlFor={`order-${item}`} key={`order-${item}`}>
             { item }
             <input
-              onChange={ () => setAscDesc(item) }
+              onChange={() => setAscDesc(item)}
               name="order"
-              id={ `order-${item}` }
+              id={`order-${item}`}
               type="radio"
-              value={ item }
-              checked={ item === ascDesc }
-              data-testid={ `column-sort-input-${item.toLowerCase(planetsFiltered)}` }
+              value={item}
+              checked={item === ascDesc}
+              data-testid={`column-sort-input-${item.toLowerCase(planetsFiltered)}`}
             />
           </label>
         ))
@@ -131,22 +131,22 @@ export function Form() {
       <button
         type="button"
         data-testid="column-sort-button"
-        onClick={ () => {
+        onClick={() => {
           setOrder({ column: sorted, sort: ascDesc });
-        } }
+        }}
       >
         Sort
       </button>
 
       <div>
         {filterByNumericValues.map((aa) => (
-          <span key={ aa.column } data-testid="filter">
+          <span key={aa.column} data-testid="filter">
             <p>{aa.column}</p>
             <p>{aa.comparison}</p>
             <p>{aa.value}</p>
             <button
               type="button"
-              onClick={ () => removeFilter(aa) }
+              onClick={() => removeFilter(aa)}
             >
               X
             </button>
@@ -155,7 +155,7 @@ export function Form() {
         <button
           type="button"
           data-testid="button-remove-filters"
-          onClick={ () => onRemoveFilterBtnClick() }
+          onClick={() => onRemoveFilterBtnClick()}
         >
           Remover todas as filtragens
         </button>
